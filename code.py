@@ -512,7 +512,7 @@ if st.button("Lancer le calcul du score FAPS"):
         StepFunctionL3 = np.abs(RatioV_LLl3 - 1.49)/0.082 + np.abs(RatioLL_SLl3 - 0.77)/0.046 + np.abs(StepTimel3 - 0.52) / 0.028
         if StepFunctionL3 > 22 :
           StepFunctionL3 = 22
-        
+        StepFunctionL3 = np.abs(StepFunctionL3 - 22)
         # SL Asy
         SL_Asy3 = np.abs(RatioLL_SLr3 / RatioLL_SLl3) / 0.2
         if SL_Asy3 > 8 :
