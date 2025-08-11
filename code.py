@@ -48,28 +48,28 @@ if uploaded_files:
         tmp3_path = tmp.name
 
     acq1 = ezc3d.c3d(tmp1_path)  # acquisition dynamique
-    labels = acq1['parameters']['POINT']['LABELS']['value']
-    freq = acq1['header']['points']['frame_rate']
-    first_frame = acq1['header']['points']['first_frame']
-    n_frames = acq1['data']['points'].shape[2]
-    time_offset = first_frame / freq
-    time = np.arange(n_frames) / freq + time_offset
+    labels1 = acq1['parameters']['POINT']['LABELS']['value']
+    freq1 = acq1['header']['points']['frame_rate']
+    first_frame1 = acq1['header']['points']['first_frame']
+    n_frames1 = acq1['data']['points'].shape[2]
+    time_offset1 = first_frame1 / freq1
+    time1 = np.arange(n_frames1) / freq1 + time_offset1
 
     acq2 = ezc3d.c3d(tmp2_path)  # acquisition dynamique
-    labels = acq1['parameters']['POINT']['LABELS']['value']
-    freq = acq1['header']['points']['frame_rate']
-    first_frame = acq1['header']['points']['first_frame']
-    n_frames = acq1['data']['points'].shape[2]
-    time_offset = first_frame / freq
-    time = np.arange(n_frames) / freq + time_offset
+    labels2 = acq2['parameters']['POINT']['LABELS']['value']
+    freq2 = acq2['header']['points']['frame_rate']
+    first_frame2 = acq2['header']['points']['first_frame']
+    n_frames2 = acq2['data']['points'].shape[2]
+    time_offset2 = first_frame2 / freq2
+    time2 = np.arange(n_frames2) / freq2 + time_offset2
 
     acq3 = ezc3d.c3d(tmp3_path)  # acquisition dynamique
-    labels = acq1['parameters']['POINT']['LABELS']['value']
-    freq = acq1['header']['points']['frame_rate']
-    first_frame = acq1['header']['points']['first_frame']
-    n_frames = acq1['data']['points'].shape[2]
-    time_offset = first_frame / freq
-    time = np.arange(n_frames) / freq + time_offset
+    labels3 = acq3['parameters']['POINT']['LABELS']['value']
+    freq3 = acq3['header']['points']['frame_rate']
+    first_frame3 = acq3['header']['points']['first_frame']
+    n_frames3 = acq3['data']['points'].shape[2]
+    time_offset3 = first_frame3 / freq3
+    time3 = np.arange(n_frames3) / freq3 + time_offset3
     
     statique = ezc3d.c3d(tmp_path)  # acquisition statique
     labelsStat = statique['parameters']['POINT']['LABELS']['value']
