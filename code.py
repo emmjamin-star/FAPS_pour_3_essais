@@ -501,28 +501,23 @@ if st.button("Lancer le calcul du score FAPS"):
         if DynamiqueBaseSupport3 > 8:
           DynamiqueBaseSupport3 = 8
         DynamiqueBaseSupport3 = np.abs(DynamiqueBaseSupport3 - 8)
-        display(DynamiqueBaseSupport3)
         
         # Step function R
         StepFunctionR3 = np.abs(RatioV_LLr3 - 1.49)/0.082 + np.abs(RatioLL_SLr3 - 0.77)/0.046 + np.abs(StepTimer3 - 0.52) / 0.028
         if StepFunctionR3 > 22 :
           StepFunctionR3 = 22
         StepFunctionR3 = np.abs(StepFunctionR3 - 22)
-        display(StepFunctionR3)
         
         # Step function L
         StepFunctionL3 = np.abs(RatioV_LLl3 - 1.49)/0.082 + np.abs(RatioLL_SLl3 - 0.77)/0.046 + np.abs(StepTimel3 - 0.52) / 0.028
         if StepFunctionL3 > 22 :
           StepFunctionL3 = 22
-        StepFunctionL3 = np.abs(StepFunctionL3 - 22)
-        display(StepFunctionL3)
         
         # SL Asy
         SL_Asy3 = np.abs(RatioLL_SLr3 / RatioLL_SLl3) / 0.2
         if SL_Asy3 > 8 :
           SL_Asy3 = 8
         SL_Asy3 = np.abs(SL_Asy3 - 8)
-        display(SL_Asy3)
       
         # Score final FAPS
         ScoreFAPS3 = np.round(100 - (StepFunctionR3 + StepFunctionL3 + SL_Asy3 + DynamiqueBaseSupport3 + AmbulatoryAids + AssistiveDevice),2)
