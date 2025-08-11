@@ -27,9 +27,9 @@ AssistiveDevice = st.selectbox(
 
 if uploaded_files:
     selected_file_statique = st.selectbox("Choisissez un fichier dynamique pour l'analyse", uploaded_files, format_func=lambda x: x.name)
-    selected_file_dynamique1 = st.selectbox("Choisissez un fichier statique pour l'analyse", uploaded_files, format_func=lambda x: x.name)
-    selected_file_dynamique2 = st.selectbox("Choisissez un fichier statique pour l'analyse", uploaded_files, format_func=lambda x: x.name)
-    selected_file_dynamique3 = st.selectbox("Choisissez un fichier statique pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique1 = st.selectbox("Choisissez un fichier statique 1 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique2 = st.selectbox("Choisissez un fichier statique 2 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique3 = st.selectbox("Choisissez un fichier statique 3 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".c3d") as tmp:
         tmp.write(selected_file_statique.read())
