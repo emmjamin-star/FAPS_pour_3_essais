@@ -26,10 +26,10 @@ AssistiveDevice = st.selectbox(
     df['Score'])
 
 if uploaded_files:
-    selected_file_statique = st.selectbox("Choisissez un fichier dynamique pour l'analyse", uploaded_files, format_func=lambda x: x.name)
-    selected_file_dynamique1 = st.selectbox("Choisissez un fichier statique 1 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
-    selected_file_dynamique2 = st.selectbox("Choisissez un fichier statique 2 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
-    selected_file_dynamique3 = st.selectbox("Choisissez un fichier statique 3 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_statique = st.selectbox("Choisissez un fichier statique pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique1 = st.selectbox("Choisissez un fichier dynamique 1 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique2 = st.selectbox("Choisissez un fichier dynamique 2 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique3 = st.selectbox("Choisissez un fichier dynamique 3 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".c3d") as tmp:
         tmp.write(selected_file_statique.read())
@@ -76,7 +76,7 @@ if uploaded_files:
     freqStat = statique['header']['points']['frame_rate']
     first_frameStat = statique['header']['points']['first_frame']
     n_framesStat = statique['data']['points'].shape[2]
-    time_offsetStat = first_frameStat / freq
+    time_offsetStat = first_frameStat / freqStat
     timeStat = np.arange(n_framesStat) / freq + time_offsetStat
     
     markersStat  = statique['data']['points']
