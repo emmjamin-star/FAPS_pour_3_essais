@@ -256,7 +256,14 @@ if st.button("Lancer le calcul du score FAPS"):
         VarLgPl1 = np.std(LgPasG1)
         
         # Vitesse de marche
-        Vmarche1 = round(((markers1[:,labels1.index('STRN'),:][0,-1]-markers1[:,labels1.index('STRN'),:][0,0]) / (len(markers1[:,labels1.index('STRN'),:][0,:]) / 100)) / 1000,2)
+        markerVmarche = markers1[:,labels1.index('STRN'),:][0,:]
+        while np.isnan(markerVmarche[0]) == True :
+          markerVmarche = np.delete(markerVmarche,0)
+
+        while np.isnan(markerVmarche[-1]) == True :
+          markerVmarche = np.delete(markerVmarche,-1)
+
+        Vmarche1 = round(((markerVmarche[-1]-markerVmarche[0]) / (len(markerVmarche) / 100)) / 1000,2)
         # Calcul du ratio et des indices liés à la marche
         RatioLL_SLr1 = (LgPasRmoy1 / 100) / 2
         RatioLL_SLl1 = (LgPasLmoy1 / 100) / 2
@@ -351,8 +358,14 @@ if st.button("Lancer le calcul du score FAPS"):
         
         
         # Vitesse de marche
-        Vmarche2 = round(((markers2[:,labels2.index('STRN'),:][0,-1]-markers2[:,labels2.index('STRN'),:][0,0]) / (len(markers2[:,labels2.index('STRN'),:][0,:]) / 100)) / 1000,2)
-        
+        markerVmarche = markers2[:,labels2.index('STRN'),:][0,:]
+        while np.isnan(markerVmarche[0]) == True :
+          markerVmarche = np.delete(markerVmarche,0)
+
+        while np.isnan(markerVmarche[-1]) == True :
+          markerVmarche = np.delete(markerVmarche,-1)
+
+        Vmarche2 = round(((markerVmarche[-1]-markerVmarche[0]) / (len(markerVmarche) / 100)) / 1000,2)
         # Calcul du ratio et des indices liés à la marche
         RatioLL_SLr2 = (LgPasRmoy2 / 100) / 2
         RatioLL_SLl2 = (LgPasLmoy2 / 100) / 2
@@ -446,8 +459,14 @@ if st.button("Lancer le calcul du score FAPS"):
         VarLgPl3 = np.std(LgPasG3)
         
         # Vitesse de marche
-        Vmarche3 = round(((markers3[:,labels3.index('STRN'),:][0,-1]-markers3[:,labels3.index('STRN'),:][0,0]) / (len(markers3[:,labels3.index('STRN'),:][0,:]) / 100)) / 1000,2)
-        
+        markerVmarche = markers3[:,labels3.index('STRN'),:][0,:]
+        while np.isnan(markerVmarche[0]) == True :
+          markerVmarche = np.delete(markerVmarche,0)
+
+        while np.isnan(markerVmarche[-1]) == True :
+          markerVmarche = np.delete(markerVmarche,-1)
+
+        Vmarche3 = round(((markerVmarche[-1]-markerVmarche[0]) / (len(markerVmarche) / 100)) / 1000,2)  
         # Calcul du ratio et des indices liés à la marche
         RatioLL_SLr3 = (LgPasRmoy3 / 100) / 2
         RatioLL_SLl3 = (LgPasLmoy3 / 100) / 2
