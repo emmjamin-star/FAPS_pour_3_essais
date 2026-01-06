@@ -183,7 +183,7 @@ if st.button("Lancer le calcul du score FAPS"):
             print("-" * 30)
             print(f"SCORE FAPS FINAL   : {max(0, round(score_faps, 2))}/100")
         
-        calculate_faps_fixed()
+         calculate_faps_fixed()
 
         st.markdown("### 📊 Résultats du score FAPS")
         st.write(f"**Score FAPS moyen ** : {max(0, round(score_faps, 2))}/100")
