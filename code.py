@@ -160,7 +160,7 @@ if st.button("Lancer le calcul du score FAPS"):
                 # On calcule l'écart à la norme pour chaque paramètre
                 p_v = np.abs(gv_val - 1.49) / 0.082
                 p_sl = np.abs(gsl_val - 0.77) / 0.046
-                p_st = np.abs(st_val - 1.12) / 0.028
+                p_st = np.abs(st_val - 1.08) / 0.028
                 
                 total_penalty = p_v + p_sl + p_st
                 return min(total_penalty, 22)
@@ -178,7 +178,7 @@ if st.button("Lancer le calcul du score FAPS"):
             st.write(f"**Score FAPS moyen ** : {max(0, round(score_faps, 2))}/100")
             st.write(f"Vitesse Norm. (GV) : {gv:.2f} (Cible: 1.49)")
             st.write(f"Pas Norm. (GSL)    : {(gsl_r+gsl_l)/2:.2f} (Cible: 0.77)")
-            st.write(f"Temps Pas (ST)     : {(avg_st_r+avg_st_l)/2:.2f} s (Cible: 1.12)")
+            st.write(f"Temps Pas (ST)     : {(avg_st_r+avg_st_l)/2:.2f} s (Cible: 1.08)")
             st.write(f"**Lecture du test** : Un individu présentant une marche saine aura un score compris entre 95 et 100. Tout score en-dessous indique une atteinte à la fonctionnalité de la marche.")
         
          calculate_faps_fixed()
