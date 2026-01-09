@@ -160,7 +160,7 @@ if st.button("Lancer le calcul du score FAPS"):
                 # On calcule l'écart à la norme pour chaque paramètre
                 p_v = np.abs(gv_val - 1.49) / 0.082
                 p_sl = np.abs(gsl_val - 0.77) / 0.046
-                p_st = np.abs(st_val - 1.08) / 0.028
+                p_st = np.abs(st_val - 1.04) / 0.028
                 
                 total_penalty = p_v + p_sl + p_st
                 return min(total_penalty, 22)
