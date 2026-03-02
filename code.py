@@ -7,6 +7,7 @@ from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 from sklearn.preprocessing import MinMaxScaler
 import tempfile
+from math import sqrt
 
 st.set_page_config(page_title="Score FAPS", layout="centered")
 st.title("🦿 Score FAPS - Interface interactive")
