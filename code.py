@@ -63,8 +63,8 @@ if st.button("Lancer le calcul du score FAPS"):
         mval = 1.3/(sqrt(9.81*0.85)) #Chiffre de l'INRETS
         def calculate_faps_fixed():
             # --- CONFIGURATION ---
-            trials = ["/TrombiniJ09.c3d", "/TrombiniJ10.c3d", "/TrombiniJ12.c3d", "/TrombiniJ13.c3d", "/TrombiniJ14.c3d"]
-            static_file = "/TrombiniJ07.c3d"
+            trials = [tmp1_path, tmp2_path, tmp3_path, tmp4_path, tmp5_path]
+            static_file = tmp_path
         
             # 1. PARAMÈTRES ANTHROPOMÉTRIQUES
             try:
