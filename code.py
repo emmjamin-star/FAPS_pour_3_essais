@@ -188,7 +188,7 @@ if st.button("Lancer le calcul du score FAPS"):
             score_faps = 100 - (sf_r + sf_l + sl_asy + dbs_penality + AmbulatoryAids + AssistiveDevice)
             st.markdown("### 📊 Résultats du score FAPS")
             st.write(f"**Score FAPS moyen ** : {max(0, round(score_faps, 2))}/100")
-            st.write(f"Vitesse Norm. (GV) : {gv:.2f} (Cible: 1.49)")
+            st.write(f"Vitesse Norm. (GV) : {gv:.2f} (Cible: {mval:.2f})")
             st.write(f"Pas Norm. (GSL)    : {(gsl_r+gsl_l)/2:.2f} (Cible: 0.77)")
             st.write(f"Temps Pas (ST)     : {(avg_st_r+avg_st_l)/2:.2f} s (Cible: 1.08)")
             st.write(f"**Lecture du test** : Un individu présentant une marche saine aura un score compris entre 95 et 100. Tout score en-dessous indique une atteinte à la fonctionnalité de la marche.")
