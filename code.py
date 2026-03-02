@@ -192,7 +192,7 @@ if st.button("Lancer le calcul du score FAPS"):
             st.write(f"Temps Pas (ST)     : {(avg_st_r+avg_st_l)/2:.2f} s (Cible: 1.08)")
             st.write(f"**Lecture du test** : Un individu présentant une marche saine aura un score compris entre 95 et 100. Tout score en-dessous indique une atteinte à la fonctionnalité de la marche.")
         
-         calculate_faps_fixed()
+        calculate_faps_fixed()
         
     except Exception as e:
         st.error(f"Erreur pendant l'analyse : {e}")
