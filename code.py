@@ -30,6 +30,8 @@ if uploaded_files:
     selected_file_dynamique1 = st.selectbox("Choisissez un fichier dynamique 1 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
     selected_file_dynamique2 = st.selectbox("Choisissez un fichier dynamique 2 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
     selected_file_dynamique3 = st.selectbox("Choisissez un fichier dynamique 3 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique4 = st.selectbox("Choisissez un fichier dynamique 4 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
+    selected_file_dynamique5 = st.selectbox("Choisissez un fichier dynamique 5 pour l'analyse", uploaded_files, format_func=lambda x: x.name)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".c3d") as tmp:
         tmp.write(selected_file_statique.read())
@@ -47,18 +49,27 @@ if uploaded_files:
         tmp.write(selected_file_dynamique3.read())
         tmp3_path = tmp.name
 
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".c3d") as tmp:
+        tmp.write(selected_file_dynamique3.read())
+        tmp4_path = tmp.name
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".c3d") as tmp:
+        tmp.write(selected_file_dynamique3.read())
+        tmp5_path = tmp.name
+        
 if st.button("Lancer le calcul du score FAPS"):
     try:
-         def calculate_faps_fixed():
+        mval = 1.3/(sqrt(9.81*0.85)) #Chiffre de l'INRETS
+        def calculate_faps_fixed():
             # --- CONFIGURATION ---
-            trials = [tmp1_path, tmp2_path, tmp3_path]
-            static_file = tmp_path
-            
+            trials = ["/TrombiniJ09.c3d", "/TrombiniJ10.c3d", "/TrombiniJ12.c3d", "/TrombiniJ13.c3d", "/TrombiniJ14.c3d"]
+            static_file = "/TrombiniJ07.c3d"
+        
             # 1. PARAMÈTRES ANTHROPOMÉTRIQUES
             try:
                 statique = ezc3d.c3d(static_file)
                 labelsStat = statique['parameters']['POINT']['LABELS']['value']
-                
+        
                 def get_static_point(label):
                     if label not in labelsStat: return None
                     idx = labelsStat.index(label)
@@ -72,7 +83,7 @@ if st.button("Lancer le calcul du score FAPS"):
                 if p1 is None or p2 is None:
                     print("Erreur : Marqueurs LPSI ou LANK introuvables.")
                     return
-                    
+        
                 leg_length = np.linalg.norm(p1 - p2) / 1000.0 # en METRES
             except Exception as e:
                 print(f"Erreur statique : {e}")
@@ -87,7 +98,7 @@ if st.button("Lancer le calcul du score FAPS"):
                     labels = acq['parameters']['POINT']['LABELS']['value']
                     freq = acq['header']['points']['frame_rate']
                     data = acq['data']['points']
-                    
+        
                     def get_clean_marker(label):
                         if label not in labels: return None
                         idx = labels.index(label)
@@ -101,7 +112,7 @@ if st.button("Lancer le calcul du score FAPS"):
                     r_he = get_clean_marker('RHEE')
                     l_he = get_clean_marker('LHEE')
                     strn = get_clean_marker('STRN')
-                    
+        
                     if r_he is None or l_he is None or strn is None: continue
         
                     # Détection des Heel Strikes (Axe Z)
@@ -119,7 +130,7 @@ if st.button("Lancer le calcul du score FAPS"):
                         next_r = hs_r[hs_r > t0]
                         if len(next_r) > 0:
                             results['sl_r'].append(np.abs(r_he[0, next_r[0]] - l_he[0, t0]) / 1000.0)
-                    
+        
                     for t0 in hs_r:
                         next_l = hs_l[hs_l > t0]
                         if len(next_l) > 0:
@@ -151,27 +162,27 @@ if st.button("Lancer le calcul du score FAPS"):
             # --- NORMALISATION (C'est ici que l'erreur se trouvait) ---
             # GV (Vitesse normalisée) = Vitesse (m/s) / LegLength (m)
             # GSL (Longueur pas normalisée) = StepLength (m) / LegLength (m)
-            gv = avg_v / leg_length
+            gv = avg_v / (sqrt(9.81*leg_length))
             gsl_r = avg_sl_r / leg_length
             gsl_l = avg_sl_l / leg_length
         
             # FORMULE DE GOUELLE (2014)
             def get_step_function_penalty(gv_val, gsl_val, st_val):
                 # On calcule l'écart à la norme pour chaque paramètre
-                p_v = np.abs(gv_val - 1.49) / 0.082
+                p_v = np.abs(gv_val - mval) / 0.082
                 p_sl = np.abs(gsl_val - 0.77) / 0.046
-                p_st = np.abs(st_val - 1.04) / 0.028
-                
+                p_st = np.abs(st_val - 1.12) / 0.028
+        
                 total_penalty = p_v + p_sl + p_st
                 return min(total_penalty, 22)
         
             sf_r = get_step_function_penalty(gv, gsl_r, avg_st_r)
             sf_l = get_step_function_penalty(gv, gsl_l, avg_st_l)
-            
+        
             # Asymétrie et Base de soutien
             sl_asy = min((np.abs(avg_sl_r / avg_sl_l - 1) / 0.2) * 8, 8) # Normalisation de l'écart à 1
             dbs_penality = min(np.abs(avg_dbs - 10) / 5, 8) # Pénalité progressive
-        
+              
             # Score Final
             score_faps = 100 - (sf_r + sf_l + sl_asy + dbs_penality + AmbulatoryAids + AssistiveDevice)
             st.markdown("### 📊 Résultats du score FAPS")
