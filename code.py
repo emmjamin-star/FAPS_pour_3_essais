@@ -197,5 +197,8 @@ if st.button("Lancer le calcul du score FAPS"):
         trials_list = [tmp1_path, tmp2_path, tmp3_path, tmp4_path, tmp5_path]
         calculate_faps(trials_list, tmp_path, walking_aids=False, assistive_devices=False)
         
+        st.markdown("### 📊 Résultats du score FAPS")
+        st.write(f"Score FAPS : {score_faps:.2f}")
+        st.write(f"**Lecture du test** : Un individu présentant une marche saine aura un score compris entre 95 et 100. Tout score en-dehors indique une atteinte à la fonctionnalité de la marche.")
     except Exception as e:
         st.error(f"Erreur pendant l'analyse : {e}")
