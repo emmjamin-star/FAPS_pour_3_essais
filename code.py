@@ -51,21 +51,17 @@ if uploaded_files:
         tmp3_path = tmp.name
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".c3d") as tmp:
-        tmp.write(selected_file_dynamique3.read())
+        tmp.write(selected_file_dynamique4.read())
         tmp4_path = tmp.name
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".c3d") as tmp:
-        tmp.write(selected_file_dynamique3.read())
+        tmp.write(selected_file_dynamique5.read())
         tmp5_path = tmp.name
         
 if st.button("Lancer le calcul du score FAPS"):
     try:
         mval = 1.3/(sqrt(9.81*0.85)) #Chiffre de l'INRETS
-        def calculate_faps_fixed():
-            # --- CONFIGURATION ---
-            trials = [tmp1_path, tmp2_path, tmp3_path, tmp4_path, tmp5_path]
-            static_file = tmp_path
-        
+        def calculate_faps(trials, static_file, walking_aids=False, assistive_devices=False):
             # 1. PARAMÈTRES ANTHROPOMÉTRIQUES
             try:
                 statique = ezc3d.c3d(static_file)
@@ -78,19 +74,19 @@ if st.button("Lancer le calcul du score FAPS"):
                     mask = ~np.isnan(pt[0, :])
                     return pt[:, mask][:, 0] if np.any(mask) else None
         
-                # Calcul de la longueur de jambe (Leg Length)
+                # Calcul de la longueur de jambe (Leg Length) en METRES
                 p1 = get_static_point('LPSI')
                 p2 = get_static_point('LANK')
                 if p1 is None or p2 is None:
                     print("Erreur : Marqueurs LPSI ou LANK introuvables.")
                     return
         
-                leg_length = np.linalg.norm(p1 - p2) / 1000.0 # en METRES
+                leg_length = np.linalg.norm(p1 - p2) / 1000.0 
             except Exception as e:
                 print(f"Erreur statique : {e}")
                 return
         
-            results = {'v': [], 'sl_r': [], 'sl_l': [], 'st_r': [], 'st_l': [], 'dbs': []}
+            results = {'sl_r': [], 'sl_l': [], 'st_r': [], 'st_l': [], 'dbs': []}
         
             # 2. TRAITEMENT DES ESSAIS
             for trial_path in trials:
@@ -112,36 +108,30 @@ if st.button("Lancer le calcul du score FAPS"):
         
                     r_he = get_clean_marker('RHEE')
                     l_he = get_clean_marker('LHEE')
-                    strn = get_clean_marker('STRN')
-        
-                    if r_he is None or l_he is None or strn is None: continue
+                    if r_he is None or l_he is None: continue
         
                     # Détection des Heel Strikes (Axe Z)
-                    hs_r, _ = find_peaks(-r_he[2, :], distance=int(freq*0.5), prominence=2)
-                    hs_l, _ = find_peaks(-l_he[2, :], distance=int(freq*0.5), prominence=2)
+                    hs_r, _ = find_peaks(-r_he[2, :], distance=int(freq*0.4), prominence=2)
+                    hs_l, _ = find_peaks(-l_he[2, :], distance=int(freq*0.4), prominence=2)
         
-                    # Vitesse (m/s) : Distance parcourue par le tronc / temps
-                    dist_tronc = np.abs(strn[0, -1] - strn[0, 0]) / 1000.0
-                    time_total = strn.shape[1] / freq
-                    results['v'].append(dist_tronc / time_total)
-        
-                    # Longueur de Pas (Step Length en METRES)
-                    # Axe de progression : on utilise la différence absolue sur X
+                    # Temps de Pas (Step Time) et Longueur de Pas (Step Length)
+                    # Jambe Droite (LHS -> RHS)
                     for t0 in hs_l:
                         next_r = hs_r[hs_r > t0]
                         if len(next_r) > 0:
-                            results['sl_r'].append(np.abs(r_he[0, next_r[0]] - l_he[0, t0]) / 1000.0)
+                            t1 = next_r[0]
+                            results['st_r'].append((t1 - t0) / freq) # Temps en secondes
+                            results['sl_r'].append(np.abs(r_he[0, t1] - l_he[0, t0]) / 1000.0) # Distance en mètres
         
+                    # Jambe Gauche (RHS -> LHS)
                     for t0 in hs_r:
                         next_l = hs_l[hs_l > t0]
                         if len(next_l) > 0:
-                            results['sl_l'].append(np.abs(l_he[0, next_l[0]] - r_he[0, t0]) / 1000.0)
+                            t1 = next_l[0]
+                            results['st_l'].append((t1 - t0) / freq)
+                            results['sl_l'].append(np.abs(l_he[0, t1] - r_he[0, t0]) / 1000.0)
         
-                    # Temps de pas (s)
-                    if len(hs_r) > 1: results['st_r'].append(np.mean(np.diff(hs_r)) / freq)
-                    if len(hs_l) > 1: results['st_l'].append(np.mean(np.diff(hs_l)) / freq)
-        
-                    # Base de soutien (cm) - Ecart moyen Y entre pieds
+                    # Base de soutien dynamique (cm) - Ecart Y moyen
                     results['dbs'].append(np.abs(np.mean(r_he[1, :]) - np.mean(l_he[1, :])) / 10.0)
         
                 except Exception as e:
@@ -152,48 +142,60 @@ if st.button("Lancer le calcul du score FAPS"):
                 print("Calcul impossible : Données de pas manquantes.")
                 return
         
-            # Moyennes Globales
-            avg_v = np.mean(results['v'])
+            # Moyennes
             avg_sl_r = np.mean(results['sl_r'])
             avg_sl_l = np.mean(results['sl_l'])
             avg_st_r = np.mean(results['st_r'])
             avg_st_l = np.mean(results['st_l'])
             avg_dbs = np.mean(results['dbs'])
         
-            # --- NORMALISATION (C'est ici que l'erreur se trouvait) ---
-            # GV (Vitesse normalisée) = Vitesse (m/s) / LegLength (m)
-            # GSL (Longueur pas normalisée) = StepLength (m) / LegLength (m)
-            gv = avg_v / (sqrt(9.81*leg_length))
+            # --- NORMALISATION SELON FAPS ---
+            # GSL (Ratio Longueur pas / Longueur Jambe)
             gsl_r = avg_sl_r / leg_length
             gsl_l = avg_sl_l / leg_length
+            
+            # GV (Vitesse normalisée par jambe = GSL / Step Time)
+            gv_r = gsl_r / avg_st_r
+            gv_l = gsl_l / avg_st_l
         
-            # FORMULE DE GOUELLE (2014)
+            # --- ALGORITHME DE DÉDUCTION ---
             def get_step_function_penalty(gv_val, gsl_val, st_val):
-                # On calcule l'écart à la norme pour chaque paramètre
-                p_v = np.abs(gv_val - mval) / 0.082
-                p_sl = np.abs(gsl_val - 0.77) / 0.046
-                p_st = np.abs(st_val - 1.12) / 0.028
+                # Pénalité progressive si hors des normes (Max ~7.33 pts par paramètre pour atteindre 22)
+                p_v = 0 if 1.1 <= gv_val <= 1.5 else min(min(abs(gv_val - 1.1), abs(gv_val - 1.5)) / 0.4 * 7.33, 7.33)
+                p_sl = 0 if 0.69 <= gsl_val <= 0.86 else min(min(abs(gsl_val - 0.69), abs(gsl_val - 0.86)) / 0.2 * 7.33, 7.33)
+                p_st = 0 if 0.50 <= st_val <= 0.63 else min(min(abs(st_val - 0.50), abs(st_val - 0.63)) / 0.2 * 7.33, 7.33)
+                return min(p_v + p_sl + p_st, 22)
         
-                total_penalty = p_v + p_sl + p_st
-                return min(total_penalty, 22)
+            # Déductions A et B (Fonctions de pas)
+            deduction_A = get_step_function_penalty(gv_l, gsl_l, avg_st_l)
+            deduction_B = get_step_function_penalty(gv_r, gsl_r, avg_st_r)
         
-            sf_r = get_step_function_penalty(gv, gsl_r, avg_st_r)
-            sf_l = get_step_function_penalty(gv, gsl_l, avg_st_l)
+            # Déduction C : Asymétrie (Max 8 points)
+            diff_asy = np.abs(gsl_r - gsl_l)
+            deduction_C = 0 if diff_asy < 0.03 else min(((diff_asy - 0.03) / 0.15) * 8, 8)
         
-            # Asymétrie et Base de soutien
-            sl_asy = min((np.abs(avg_sl_r / avg_sl_l - 1) / 0.2) * 8, 8) # Normalisation de l'écart à 1
-            dbs_penality = min(np.abs(avg_dbs - 10) / 5, 8) # Pénalité progressive
-              
-            # Score Final
-            score_faps = 100 - (sf_r + sf_l + sl_asy + dbs_penality + AmbulatoryAids + AssistiveDevice)
-            st.markdown("### 📊 Résultats du score FAPS")
-            st.write(f"**Score FAPS moyen ** : {max(0, round(score_faps, 2))}/100")
-            st.write(f"Vitesse Norm. (GV) : {gv:.2f} (Cible: {mval:.2f})")
-            st.write(f"Pas Norm. (GSL)    : {(gsl_r+gsl_l)/2:.2f} (Cible: 0.77)")
-            st.write(f"Temps Pas (ST)     : {(avg_st_r+avg_st_l)/2:.2f} s (Cible: 1.08)")
-            st.write(f"**Lecture du test** : Un individu présentant une marche saine aura un score compris entre 95 et 100. Tout score en-dessous indique une atteinte à la fonctionnalité de la marche.")
+            # Déduction D : Base de Support Dynamique (Max 8 points)
+            # Norme typique assumée entre 5cm et 10cm de large
+            if 5 <= avg_dbs <= 10:
+                deduction_D = 0
+            else:
+                dbs_diff = min(abs(avg_dbs - 5), abs(avg_dbs - 10))
+                deduction_D = min((dbs_diff / 8) * 8, 8) 
         
-        calculate_faps_fixed()
+            # Déductions E et F : Aides et Dispositifs
+            deduction_E = 5 if AmbulatoryAids>0 else 0
+            deduction_F = 5 if AssistiveDevice>0 else 0
+        
+            # Formule Finale
+            total_deductions = deduction_A + deduction_B + deduction_C + deduction_D + deduction_E + deduction_F
+            score_faps = 100 - total_deductions
+            
+            # Plancher théorique du FAPS
+            score_min = 30 if (walking_aids or assistive_devices) else 40
+            score_faps = max(score_min, score_faps)
+            
+        trials_list = [tmp1_path, tmp2_path, tmp3_path, tmp4_path, tmp5_path]
+        calculate_faps(trials_list, tmp_path, walking_aids=False, assistive_devices=False)
         
     except Exception as e:
         st.error(f"Erreur pendant l'analyse : {e}")
